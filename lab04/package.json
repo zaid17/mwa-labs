@@ -1,0 +1,19 @@
+{
+  "name": "lab04",
+  "version": "1.0.0",
+  "description": "learn mongodb",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mongodb"
+  ],
+  "author": "Zaid Alsaied Ahmad",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongodb": "^4.11.0"
+  }
+}
