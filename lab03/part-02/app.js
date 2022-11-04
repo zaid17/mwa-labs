@@ -1,6 +1,6 @@
 const express = require("express");
 require("dotenv").config();
-
+app.use(express.json());
 const path = require("path");
 
 const app = express();

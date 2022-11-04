@@ -10,7 +10,9 @@ const open = function () {
 
       _connection = client.db(process.env.DB_NAME);
       console.log("DB connection open");
-      console.log(_connection);
+
+      
+  
     });
   } else return _connection;
 };
