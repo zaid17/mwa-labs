@@ -16,5 +16,5 @@ app.use((req, _, next) => {
   console.log(req.url);
   next();
 });
-app.use("/api", routes);
+app.use("/api/songs", routes);
 app.listen(process.env.SERVER_PORT);
