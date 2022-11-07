@@ -156,10 +156,5 @@ module.exports.updateSongPartially = (req, res) => {
         res.status(200).json({ msg: "song was updated." });
       }
     });
-    // } else {
-    //   console.log("success");
-    //   res.status(200).json({ msg: `song with id:${songId} was updated.` });
-    //   return;
-    // }
   });
 };

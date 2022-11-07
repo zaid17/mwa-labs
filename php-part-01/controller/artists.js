@@ -46,9 +46,12 @@ module.exports.addOne = (req, res) => {
 };
 
 module.exports.getArtists = (req, res) => {
+  console.log(req.params);
   const songId = req.params.songId;
+  console.log(songId);
   if (!mongoose.isValidObjectId(songId)) {
     res.status(400).json({ error: `${songId} is not a valid object id` });
+    return;
   }
   Song.findById(songId)
     .select("artists")
@@ -71,7 +74,10 @@ module.exports.getOne = (req, res) => {
   const songId = req.params.songId;
   const artistId = req.params.artistId;
 
-  if (!mongoose.isValidObjectId(songId)) {
+  if (
+    !mongoose.isValidObjectId(songId) ||
+    !mongoose.isValidObjectId(artistId)
+  ) {
     res.status(400).send("invalid object id");
     return;
   }
