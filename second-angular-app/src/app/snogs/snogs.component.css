@@ -1,0 +1,11 @@
+ul {
+  display: inline;
+  padding: 10px;
+}
+
+div {
+  margin: 15px;
+}
+.delete{
+ background-color: blue;
+}

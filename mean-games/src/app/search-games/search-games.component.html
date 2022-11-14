@@ -1,0 +1,10 @@
+<div>
+  <input type="text" [(ngModel)]="title" />
+  {{ title }}
+  <br />
+
+  <button type="button" (click)="search(title)">search</button>
+  <div *ngFor="let game of games">
+    <h5>{{ game.title }}</h5>
+  </div>
+</div>

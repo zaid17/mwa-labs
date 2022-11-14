@@ -1,0 +1,5 @@
+<form [formGroup]="songForm" (ngSubmit)="onSubmit()">
+  Title<input type="text" formControlName="title" /><br />
+  Publish Year <input type="number" formControlName="publish_year" /><br />
+  <button>Submit</button>
+</form>

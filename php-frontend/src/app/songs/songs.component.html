@@ -1,0 +1,10 @@
+<h2>This is my Songs List:</h2>
+
+<ul>
+    <li *ngFor="let song of songs">
+        <div (click)="goToSongPage(song._id)">
+                {{song.title}}
+        </div>
+        <button type="button" (click)="deleteSong(song._id)">delete</button>
+    </li>
+</ul>

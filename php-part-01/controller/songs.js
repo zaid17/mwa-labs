@@ -1,7 +1,9 @@
 const Song = require("../models/song");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 module.exports.getSongs = (req, res) => {
-  const maxCount = 6;
+  const maxCount = 200;
+  const offset=0;
   if (
     !req.query.count ||
     isNaN(req.query.count) ||
@@ -14,7 +16,9 @@ module.exports.getSongs = (req, res) => {
   }
   const count = req.query.count;
   Song.find()
-    .limit(count)
+    .limit(200)
+    .skip(offset)
+    .sort({ title: 1 })
     .exec(function (err, songs) {
       if (err) {
         console.log("error in getSongs", err);
@@ -31,10 +35,18 @@ module.exports.addOne = (req, res) => {
     res.json({ msg: "invalid data, title and publish_year are required." });
     return;
   }
+  const saltRounds = 10;
+  const myPlaintextPassword = req.body.password;
+
+  const salt = bcrypt.genSaltSync(saltRounds);
+  const hash = bcrypt.hashSync(myPlaintextPassword, salt);
+  // to check the hash
+  //bcrypt.compareSync(myPlaintextPassword, hash);
   const song = {
     title: req.body.title,
     publish_year: req.body.publish_year,
     artists: req.body.artists,
+    password: hash,
   };
   Song.create(song, (err, song) => {
     const response = { status: 201, message: song };
@@ -144,7 +156,7 @@ module.exports.updateSongPartially = (req, res) => {
     }
 
     song.title = req.body.title || song.title;
-    song.publish_year = req.body.publish_year || song.publish_year ;
+    song.publish_year = req.body.publish_year || song.publish_year;
     song.artists = req.body.artists || song.artists;
 
     song.save((err, result) => {

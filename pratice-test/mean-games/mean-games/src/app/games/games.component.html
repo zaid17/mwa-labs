@@ -1,0 +1,7 @@
+<div *ngFor="let g of games">
+  <h3 (click)="goToGame(g._id)">
+    {{ g.title }} <span>{{ g.year }}</span>
+  </h3>
+</div>
+<button (click)="getPrev()">prev</button>
+<button (click)="getNext()">next</button>

@@ -11,6 +11,7 @@ const songSchema = mongoose.Schema({
   title: { type: String, required: true },
   publish_year: { type: String, required: true },
   artists: [artistSchema],
+  password: String,
 });
 
 module.exports = mongoose.model(
