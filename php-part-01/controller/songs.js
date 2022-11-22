@@ -1,107 +1,162 @@
 const Song = require("../models/song");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+
+const _createDefaultResponseObject = (status, msg) => {
+  return {
+    status: status | 200,
+    msg: msg | "success",
+  };
+};
+
+const _isValidObjectId = (id) => {
+  return mongoose.isValidObjectId(id);
+};
+const _sendResponse = (res, response) => {
+  res.status(parseInt(response.status)).json(response.msg);
+};
+
+const _songNotFoundHandler = (res, response) => {
+  response.status = process.env.RESOURCE_WAS_NOT_FOUND_STATUS_CODE;
+  response.msg = "resource was not found";
+  _sendResponse(res, response);
+  return;
+};
+
 module.exports.getSongs = (req, res) => {
-  const maxCount = 200;
-  const offset=0;
-  if (
-    !req.query.count ||
-    isNaN(req.query.count) ||
-    req.query.count > maxCount
-  ) {
-    res.status(400).json({
-      error: `invalid count, count should be a valid digit and less than or equeal to ${maxCount}`,
-    });
+  const maxCount = parseInt(process.env.MAX_SONGS_COUNT);
+  const response = _createDefaultResponseObject();
+  const offset = req.query.offset || 0;
+  const count = req.query.count;
+
+  if ((count && isNaN(count)) || count > maxCount) {
+    response.status = process.env.INVALID_PARAMS_STATUS_CODE;
+    response.msg = process.env.INVALID_PARAMS_MESSAGE;
+    _sendResponse(res, response);
     return;
   }
-  const count = req.query.count;
   Song.find()
-    .limit(200)
+    .limit(count)
     .skip(offset)
-    .sort({ title: 1 })
-    .exec(function (err, songs) {
-      if (err) {
-        console.log("error in getSongs", err);
-        res.status(500).json(err);
-        return;
-      } else {
-        console.log("Found songs", songs.length);
-        res.send(songs);
-      }
+    .then((songs) => {
+      response.status = process.env.OK_STATUS_CODE;
+      response.msg = songs;
+      _sendResponse(res, response);
+    })
+    .catch((err) => {
+      response.status = process.env.INTERNAL_SERVER_ERORR_STATUS_CODE;
+      response.msg = err;
+      _sendResponse(res, response);
     });
 };
-module.exports.addOne = (req, res) => {
-  if (!req.body.title || !req.body.publish_year) {
-    res.json({ msg: "invalid data, title and publish_year are required." });
-    return;
-  }
-  const saltRounds = 10;
-  const myPlaintextPassword = req.body.password;
 
-  const salt = bcrypt.genSaltSync(saltRounds);
-  const hash = bcrypt.hashSync(myPlaintextPassword, salt);
-  // to check the hash
-  //bcrypt.compareSync(myPlaintextPassword, hash);
+const _validNewSongParams = (req) => {
+  if (!req.body.title || !req.body.publish_year) return false;
+
+  return true;
+};
+
+const _createNewSongObject = (req) => {
   const song = {
     title: req.body.title,
     publish_year: req.body.publish_year,
     artists: req.body.artists,
-    password: hash,
   };
-  Song.create(song, (err, song) => {
-    const response = { status: 201, message: song };
-    if (err) {
-      console.log("Error creating song", err);
-      response.status = 500;
-      response.message = err;
-    }
-    res.status(response.status).json(response.message);
-  });
+
+  return song;
+};
+
+module.exports.addOne = (req, res) => {
+  const response = _createDefaultResponseObject();
+  if (!_validNewSongParams(req)) {
+    response.status = process.env.INVALID_PARAMS_STATUS_CODE;
+    response.msg = process.env.INVALID_PARAMS_MESSAGE;
+
+    _sendResponse(res, response);
+  }
+
+  // const saltRounds = 10;
+  // const myPlaintextPassword = req.body.password;
+
+  // const salt = bcrypt.genSaltSync(saltRounds);
+  // const hash = bcrypt.hashSync(myPlaintextPassword, salt);
+  // // to check the hash
+  // //bcrypt.compareSync(myPlaintextPassword, hash);
+  const song = _createNewSongObject(req);
+  Song.create(song)
+    .then((song) => {
+      response.status = process.env.CREATE_STATUS_CODE;
+      response.msg = song;
+      _sendResponse(response);
+    })
+    .catch((err) => {
+      response.status = process.env.INTERNAL_SERVER_IRORR_STATUS_CODE;
+      response.msg = err;
+      _sendResponse(res, response);
+    });
 };
 
 module.exports.getOne = (req, res) => {
   const songId = req.params.songId;
-  if (!mongoose.isValidObjectId(songId)) {
-    res.status(400).json({ error: `${songId} is not a valid object id` });
+  const response = _createDefaultResponseObject();
+  if (!_isValidObjectId(songId)) {
+    response.status = process.env.INVALID_PARAMS_STATUS_CODE;
+    response.msg = process.env.INVALID_PARAMS_MESSAGE;
+    _sendResponse(res, response);
     return;
   }
-  Song.findById(songId).exec(function (err, song) {
-    if (err) {
-      console.log("error in getOneSong", err);
-      res.status(500).json(err);
-    }
-    res.json(song);
-  });
+  Song.findById(songId)
+    .then((song) => {
+      console.log(song);
+      if (!song) {
+        response.status = process.env.RESOURCE_WAS_NOT_FOUND_STATUS_CODE;
+        response.msg = song;
+        _sendResponse(res, response);
+        return;
+      }
+      response.status = process.env.OK_STATUS_CODE;
+      response.msg = song;
+      _sendResponse(res, response);
+    })
+    .catch((err) => {
+      response.status = process.env.INTERNAL_SERVER_ERORR_STATUS_CODE;
+      response.msg = err;
+      _sendResponse(res, response);
+    });
 };
 
 module.exports.deleteSongById = (req, res) => {
   const songId = req.params.songId;
-  Song.findByIdAndDelete(songId).exec(function (err, deletedSong) {
-    const response = {
-      status: 204,
-      message: `the song with ${songId} was deleted.`,
-    };
-    if (err) {
-      console.log("Error finding game");
-      response.status = 500;
-      response.message = err;
-    } else if (!deletedSong) {
-      console.log("Song id not found");
-      response.status = 404;
-      response.message = {
-        message: "Song ID not found",
-      };
-    }
-    res.status(response.status).json(response.message);
-  });
+  const response = _createDefaultResponseObject();
+  if (!_isValidObjectId(songId)) {
+    response.msg = process.env.INVALID_PARAMS_MESSAGE;
+    response.status = process.env.INVALID_PARAMS_STATUS_CODE;
+    _sendResponse(res, response);
+    return;
+  }
+  Song.findByIdAndDelete(songId)
+    .then((song) => {
+      if (!song) {
+        _songNotFoundHandler(res, response);
+        return;
+      }
+      response.status = process.env.NO_CONTENT_STATUS_CODE;
+      response.msg = song;
+      _sendResponse(res, response);
+    })
+    .catch((err) => {
+      response.status = process.env.INTERNAL_SERVER_ERORR_STATUS_CODE;
+      response.msg = err;
+      _sendResponse(res, response);
+    });
 };
 
 module.exports.updateSong = (req, res) => {
-  if (!req.body.title || !req.body.publish_year) {
-    res
-      .status(400)
-      .json({ msg: "invalid data, title and publish_year are required." });
-    return;
+  const reponse = _createDefaultResponseObject();
+  if (!_validNewSongParams(req)) {
+    reponse.status = process.env.INVALID_PARAMS_STATUS_CODE;
+    reponse.msg = process.env.INVALID_PARAMS_MESSAGE;
+    _sendResponse(res, response);
   }
   const newSong = {
     title: req.body.title,
@@ -110,9 +165,10 @@ module.exports.updateSong = (req, res) => {
   };
 
   const songId = req.params.songId;
-  if (!mongoose.isValidObjectId(songId)) {
-    res.json({ msg: "invalid song id" });
-    return;
+  if (!_isValidObjectId(songId)) {
+    reponse.status = process.env.INVALID_PARAMS_STATUS_CODE;
+    reponse.msg = process.env.INVALID_PARAMS_MESSAGE;
+    _sendResponse(res, response);
   }
   Song.findOneAndUpdate(songId, newSong, function (err, updatedSong) {
     if (!updatedSong) {

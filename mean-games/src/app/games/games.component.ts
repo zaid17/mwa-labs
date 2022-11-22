@@ -2,12 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { GamesService } from '../games.service';
 import { Router } from '@angular/router';
 
+class Publisher {
+  name!: string;
+}
 export class Game {
   title!: string;
   year!: string | number;
   minPlayers!: number;
   maxPlayers!: number;
   _id!: string;
+  publisher: Publisher = new Publisher();
 }
 @Component({
   selector: 'app-games',
@@ -36,8 +40,7 @@ export class GamesComponent implements OnInit {
     this.getGames();
   }
   getPrev() {
-    if(this.offset>=5)
-    this.offset -= 5;
+    if (this.offset >= 5) this.offset -= 5;
     this.getGames();
   }
 }
