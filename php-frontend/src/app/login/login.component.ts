@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { SignupService } from '../signup.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,10 +11,11 @@ import { SignupService } from '../signup.service';
 export class LoginComponent implements OnInit {
   username!: string;
   password!: string;
-  isAuth: boolean = false;
+  isAuthLogin: boolean = false;
   isError: boolean = false;
   message: string = '';
-  constructor(private signUpService: SignupService, private route: Router) {}
+
+  constructor(private authService: AuthService, private route: Router) {}
 
   onSubmit(form: NgForm) {
     this.login(form.value);
@@ -22,11 +23,12 @@ export class LoginComponent implements OnInit {
 
   login(json: JSON) {
     this.isError = false;
-    this.isAuth = false;
-    this.signUpService.signUp(json).subscribe(
+    this.isAuthLogin = false;
+    this.authService.login(json).subscribe(
       (val) => {
-        this.isAuth = true;
+        this.isAuthLogin = true;
         this.message = 'Success';
+        this.authService.token = val.token;
         this.goToHome();
       },
       (error) => {
@@ -38,6 +40,9 @@ export class LoginComponent implements OnInit {
 
   goToHome() {
     setTimeout(() => this.route.navigate(['']), 3000);
+  }
+  goToSignUp() {
+     this.route.navigate(['sign-up']);
   }
 
   ngOnInit(): void {}

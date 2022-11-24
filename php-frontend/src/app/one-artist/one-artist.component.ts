@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ArtistsService } from '../artists.service';
+import { AuthService } from '../auth.service';
 import { Artisit } from '../songs/songs.component';
 
 @Component({
@@ -12,10 +13,14 @@ export class OneArtistComponent implements OnInit {
   artist: Artisit = new Artisit();
   songId = this.route.snapshot.params['songId'];
   artistId = this.route.snapshot.params['artistId'];
+  get isAuth() {
+    return this.authService.isAuth();
+  }
   constructor(
     private artistService: ArtistsService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {

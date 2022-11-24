@@ -1,5 +1,8 @@
-<p>Name: {{artist.name}}</p>
-<p>Start Year: {{artist.start_year}}</p>
-<button (click)="deleteArtist()">delete</button>
-<button type="button" (click)="goToEditArtist()">edit artist</button>
-<button type="button" (click)="goToUpdateArtist()">update artist</button>
+<p>Name: {{ artist.name }}</p>
+<p>Start Year: {{ artist.start_year }}</p>
+
+<div *ngIf="isAuth">
+  <button class="delete" (click)="deleteArtist()">delete</button>
+  <button type="button" (click)="goToEditArtist()">edit artist</button>
+  <button type="button" (click)="goToUpdateArtist()">update artist</button>
+</div>

@@ -26,6 +26,9 @@ hr {
 li>span{
   cursor: pointer;
 }
+.delete{
+  color: red;
+}
 li > button {
   display: inline;
   background-color: #e7e7e7; /* Green */

@@ -50,12 +50,13 @@ module.exports.authenticateUser = async (req, res) => {
   if (!_validAuthParams(req)) {
     response.status = process.env.INVALID_PARAMS_STATUS_CODE;
     response.msg = process.env.INVALID_PARAMS_MESSAGE;
-
+    console.log('validate');
     _sendResponse(res, response);
+    return;
   }
 
   const username = req.body.username;
-  
+  console.log('before find');
   User.findOne({ username: username })
     .then((user) => _comaprePasswords(req.body.password, user.password))
     .then((isValid) => _validateUser(isValid))

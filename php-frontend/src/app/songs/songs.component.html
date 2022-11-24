@@ -1,12 +1,13 @@
 <h2>Songs List</h2>
 
 <ul>
-    <li *ngFor="let song of songs">
-        <span (click)="goToSongPage(song._id)">
-                {{song.title}}
-               
-        </span>
-        <button type="button" (click)="deleteSong(song._id)">delete</button>
-        <hr>
-    </li>
+  <li *ngFor="let song of songs">
+    <span (click)="goToSongPage(song._id)">
+      {{ song.title }}
+    </span>
+    <button type="button" (click)="deleteSong(song._id)" *ngIf="isAuth">
+      delete
+    </button>
+    <hr />
+  </li>
 </ul>

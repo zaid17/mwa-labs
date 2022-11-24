@@ -3,10 +3,10 @@
 <br>
 <h4 *ngIf="song.artists.length > 0">Artists</h4>
 <ul>
-<li>
+<li *ngFor="let artist of song.artists"
+(click)="goToArtist(song._id, artist._id)">
   <span
-    *ngFor="let artist of song.artists"
-    (click)="goToArtist(song._id, artist._id)"
+    
   >
     {{ artist.name }}
   </span>
@@ -14,9 +14,11 @@
 </ul>
 <br />
 <br />
-<button type="button" (click)="deleteSong()">delete</button>
+<div *ngIf="isAuth">
+<button class="delete" type="button" (click)="deleteSong()">delete</button>
 <button type="button" (click)="goToAddArtist()">add artist</button>
 <button type="button" (click)="goToEditSong()">edit song</button>
 <button type="button" (click)="goToUpdateSong()">update song</button>
+</div>
 <br />
 <br />

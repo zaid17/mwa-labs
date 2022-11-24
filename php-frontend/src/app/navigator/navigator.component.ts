@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-navigator',
@@ -7,10 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class NavigatorComponent implements OnInit {
   url!: string;
-  constructor() {
-    this.url = window.location.href;
-    
+  get isAuth() {
+    return this.authService.isAuth();
   }
-
+  constructor(private authService: AuthService) {}
+  logout() {
+    this.authService.logout();
+  }
   ngOnInit(): void {}
 }

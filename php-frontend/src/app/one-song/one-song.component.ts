@@ -3,6 +3,7 @@ import { SongsService } from '../songs.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Song } from '../songs/songs.component';
 import { ArtistsService } from '../artists.service';
+import { AuthService } from '../auth.service';
 @Component({
   selector: 'app-one-song',
   templateUrl: './one-song.component.html',
@@ -10,10 +11,14 @@ import { ArtistsService } from '../artists.service';
 })
 export class OneSongComponent implements OnInit {
   song: Song;
+  get isAuth() {
+    return this.authService.isAuth();
+  }
   constructor(
     private songsService: SongsService,
     private route: ActivatedRoute,
     private router: Router,
+    private authService: AuthService,
     private artistsService: ArtistsService
   ) {
     this.song = new Song();

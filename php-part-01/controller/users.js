@@ -42,6 +42,7 @@ module.exports.addOne = async (req, res) => {
     response.msg = process.env.INVALID_PARAMS_MESSAGE;
 
     _sendResponse(res, response);
+    return;
   }
 
   const user = await _createNewUserObject(req);
