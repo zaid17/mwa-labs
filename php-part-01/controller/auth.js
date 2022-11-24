@@ -1,10 +1,13 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { model } = require("mongoose");
 const _sendResponse = (res, response) => {
-  res
-    .status(parseInt(response.status))
-    .json({ msg: response.msg, token: response.token });
+  res.status(parseInt(response.status)).json({
+    msg: response.msg,
+    token: response.token,
+    user_name: response.user_name,
+  });
 };
 
 const _createDefaultResponseObject = (status, msg) => {
@@ -12,6 +15,7 @@ const _createDefaultResponseObject = (status, msg) => {
     status: status | 200,
     msg: msg,
     token: "",
+    user_name: "",
   };
 };
 const _validAuthParams = (req) => {
@@ -30,8 +34,12 @@ const _comaprePasswords = (plaintextPassword, hashedPassword) => {
 };
 
 const _validateUser = (isValid) => {
-  if (!isValid) throw "not a valid user";
+  if (!isValid) throw process.env.NOT_VALID_USER_ERORR_MESSAGE;
   return true;
+};
+const _setUserName = (response, user) => {
+  response.user_name = user.name;
+  return user;
 };
 
 const _generateUserToken = (username) => {
@@ -50,14 +58,12 @@ module.exports.authenticateUser = async (req, res) => {
   if (!_validAuthParams(req)) {
     response.status = process.env.INVALID_PARAMS_STATUS_CODE;
     response.msg = process.env.INVALID_PARAMS_MESSAGE;
-    console.log('validate');
     _sendResponse(res, response);
     return;
   }
-
   const username = req.body.username;
-  console.log('before find');
   User.findOne({ username: username })
+    .then((user) => _setUserName(response, user))
     .then((user) => _comaprePasswords(req.body.password, user.password))
     .then((isValid) => _validateUser(isValid))
     .then(() => _generateUserToken(username))
@@ -70,4 +76,15 @@ module.exports.authenticateUser = async (req, res) => {
       response.msg = false;
       _sendResponse(res, response);
     });
+};
+
+module.exports.authenticateToken = (req, res, next) => {
+  const response = _createDefaultResponseObject(403);
+  const token = req.headers.authorization.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.TOEKN_PRIVATE_KEY);
+    next();
+  } catch (err) {
+    _sendResponse(res, response);
+  }
 };

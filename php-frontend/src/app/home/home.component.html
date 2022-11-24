@@ -1,2 +1,5 @@
-<h1>Welcome [UserName] To Mean Songs</h1>
-<p *ngIf="!isAuth"> make sure to <a routerLink="login">Login</a> to use all the features!</p>
+<h1>Welcome {{ user_name }} To Mean Songs</h1>
+<p *ngIf="!isAuth">
+  please <a routerLink="login">Login</a> to use all the features!
+</p>
+

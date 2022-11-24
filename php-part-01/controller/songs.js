@@ -17,7 +17,7 @@ const _sendResponse = (res, response) => {
 
 const _songNotFoundHandler = (res, response) => {
   response.status = process.env.RESOURCE_WAS_NOT_FOUND_STATUS_CODE;
-  response.msg = "resource was not found";
+  response.msg =  process.env.RESOURCE_WAS_NOT_FOUND_MESSAGE;
   _sendResponse(res, response);
   return;
 };
@@ -49,26 +49,6 @@ module.exports.getSongs = (req, res) => {
     });
 };
 
-const _validNewSongParams = (req) => {
-  if (!req.body.title || !req.body.publish_year) return false;
-
-  return true;
-};
-const _validUpdateSongParams = (req) => {
-  if (!req.body.title && !req.body.publish_year) return false;
-
-  return true;
-};
-
-const _createNewSongObject = (req) => {
-  const song = {
-    title: req.body.title,
-    publish_year: req.body.publish_year,
-    artists: req.body.artists,
-  };
-
-  return song;
-};
 
 module.exports.addOne = (req, res) => {
   const response = _createDefaultResponseObject();
@@ -77,6 +57,7 @@ module.exports.addOne = (req, res) => {
     response.msg = process.env.INVALID_PARAMS_MESSAGE;
 
     _sendResponse(res, response);
+    return;
   }
   const song = _createNewSongObject(req);
   Song.create(song)
@@ -103,7 +84,6 @@ module.exports.getOne = (req, res) => {
   }
   Song.findById(songId)
     .then((song) => {
-      console.log(song);
       if (!song) {
         response.status = process.env.RESOURCE_WAS_NOT_FOUND_STATUS_CODE;
         response.msg = song;
@@ -155,7 +135,6 @@ module.exports.updateSong = (req, res) => {
     _sendResponse(res, response);
     return;
   }
-  console.log(req.body);
   const newSong = {
     artists: req.body.artists || [],
   };
@@ -165,64 +144,112 @@ module.exports.updateSong = (req, res) => {
 
   const songId = req.params.songId;
   if (!_isValidObjectId(songId)) {
-    reponse.status = process.env.INVALID_PARAMS_STATUS_CODE;
-    reponse.msg = process.env.INVALID_PARAMS_MESSAGE;
+    response.status = process.env.INVALID_PARAMS_STATUS_CODE;
+    response.msg = process.env.INVALID_PARAMS_MESSAGE;
     _sendResponse(res, response);
     return;
   }
-  Song.findOneAndUpdate(songId, newSong, function (err, updatedSong) {
-    console.log("findind song", updatedSong);
-    if (!updatedSong) {
-      res.json({ msg: "song id was not found" });
-      return;
-    } else {
-      if (err) {
-        console.log("error", err);
-        res.status(500).json({ msg: "error while saving" });
-        return;
-      } else {
-        res.status(200).json({ msg: `song with id:${songId} was updated.` });
-        return;
-      }
-    }
-  });
+  Song.findOneAndUpdate(songId, newSong)
+    .then((updatedSong) => {
+      _checkUpdatedSong(updatedSong);
+    })
+    .catch((err) => {
+      _updatedSongErrorHandler(err, response);
+    })
+    .finally(() => {
+      _sendResponse(res, response);
+    });
 };
 
+
 module.exports.updateSongPartially = (req, res) => {
-  if (!req.body.title && !req.body.publish_year && !req.body.artists) {
-    res.status(400).json({
-      msg: "invalid data, title, publish_year or artists are required.",
-    });
+  const response = _createDefaultResponseObject();
+  if (!_validpdateSongPartiallyParams(req)) {
+    response.status = process.env.INVALID_PARAMS_STATUS_CODE;
+    response.msg = process.env.INVALID_PARAMS_MESSAGE;
+    _sendResponse(res, response);
     return;
   }
 
   const songId = req.params.songId;
-  if (!mongoose.isValidObjectId(songId)) {
-    res.status(400).json({ msg: "invalid song id" });
+
+  if (!_isValidObjectId(songId)) {
+    response.status = process.env.INVALID_PARAMS_STATUS_CODE;
+    response.msg = process.env.INVALID_PARAMS_MESSAGE;
+    _sendResponse(res, response);
     return;
   }
-  Song.findById(songId, function (err, song) {
-    if (!song) {
-      res.status(404).json({ msg: "song id was not found" });
-      return;
-    } else if (err) {
-      console.log("error", err);
-      res.status(500).json({ msg: "error while saving" });
+  Song.findById(songId)
+    .then((song) => {
+      _checkUpdatedSong(song, response);
+      return song;
+    })
+    .then((song) => _updateSongValues(song, req))
+    .then((song) => _saveSong(song))
+    .catch((err) => {
+      _updatedSongErrorHandler(err, response);
+    })
+    .finally(() => {
+      _sendResponse(res, response);
+    });
+};
+
+const _updateSongValues = (song, req) => {
+  song.title = req.body.title || song.title;
+  song.publish_year = req.body.publish_year || song.publish_year;
+  song.artists = req.body.artists || song.artists;
+  return song;
+};
+
+const _saveSong = (song) => {
+  song.save((err, result) => {
+    if (err) {
+      throw process.env.INTERNAL_SERVER_ERORR_MESSAGE;
+    } else {
       return;
     }
-
-    song.title = req.body.title || song.title;
-    song.publish_year = req.body.publish_year || song.publish_year;
-    song.artists = req.body.artists || song.artists;
-
-    song.save((err, result) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ msg: "error while saving" });
-        return;
-      } else {
-        res.status(200).json({ msg: "song was updated." });
-      }
-    });
   });
+};
+
+const _updatedSongErrorHandler = (err, response) => {
+  response.status = process.env.INTERNAL_SERVER_ERORR_STATUS_CODE;
+  response.msg = err;
+  return;
+};
+const _checkUpdatedSong = (updatedSong, response) => {
+  if (!updatedSong) {
+    response.status = process.env.RESOURCE_WAS_NOT_FOUND_STATUS_CODE;
+    response.msg = process.env.RESOURCE_WAS_NOT_FOUND_MESSAGE;
+    return;
+  }
+  response.status = process.env.NO_CONTENT_STATUS_CODE;
+  response.msg = process.env.UPDATED_MESSAGE;
+  return;
+};
+
+const _validpdateSongPartiallyParams = (req) => {
+  if (!req.body.title && !req.body.publish_year && !req.body.artists)
+    return false;
+
+  return true;
+};
+const _validNewSongParams = (req) => {
+  if (!req.body.title || !req.body.publish_year) return false;
+
+  return true;
+};
+const _validUpdateSongParams = (req) => {
+  if (!req.body.title && !req.body.publish_year) return false;
+
+  return true;
+};
+
+const _createNewSongObject = (req) => {
+  const song = {
+    title: req.body.title,
+    publish_year: req.body.publish_year,
+    artists: req.body.artists,
+  };
+
+  return song;
 };

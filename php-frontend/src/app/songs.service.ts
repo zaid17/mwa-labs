@@ -1,34 +1,49 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Song } from './songs/songs.component';
+import { AuthService } from './auth.service';
+import { ConstantsService } from './constants.service';
 @Injectable({
   providedIn: 'root',
 })
 export class SongsService {
-  private static baseURL = 'http://localhost:3000/api/';
-  constructor(private http: HttpClient) {}
+  private songsURL: string =
+    this.constantsService.baseURL + this.constantsService.songsAPI;
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private constantsService: ConstantsService
+  ) {}
 
   public getSongs(): Observable<Object> {
-    return this.http.get(SongsService.baseURL + 'songs?');
+    return this.http.get(this.songsURL);
   }
 
   public getOneSong(id: string): Observable<Song> {
-    return this.http.get<Song>(SongsService.baseURL + 'songs/' + id);
+    return this.http.get<Song>(this.songsURL + id);
   }
 
   public deleteSong(id: string): Observable<Object> {
-    return this.http.delete(SongsService.baseURL + 'songs/' + id);
+    return this.http.delete(this.songsURL + id, {
+      headers: this.authService.getHeader(),
+    });
   }
 
   public addSong(json: JSON): Observable<Object> {
-    return this.http.post(SongsService.baseURL + 'songs', json);
+    return this.http.post(this.songsURL, json, {
+      headers: this.authService.getHeader(),
+    });
   }
 
   public editSong(id: string, json: JSON): Observable<Object> {
-    return this.http.patch(SongsService.baseURL + 'songs/' + id, json);
+    return this.http.patch(this.songsURL + id, json, {
+      headers: this.authService.getHeader(),
+    });
   }
   public updateSong(id: string, json: JSON): Observable<Object> {
-    return this.http.put(SongsService.baseURL + 'songs/' + id, json);
+    return this.http.put(this.songsURL + id, json, {
+      headers: this.authService.getHeader(),
+    });
   }
 }

@@ -155,7 +155,6 @@ module.exports.updateArtist = (req, res) => {
     res.json({ msg: "invalid song id" });
     return;
   }
-  console.log("before update");
   Song.findById(songId)
     .select("artists")
     .exec(function (err, song) {

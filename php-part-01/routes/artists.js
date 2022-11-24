@@ -1,16 +1,17 @@
 const express = require("express");
 const router = express.Router({ mergeParams: true });
 const artistsController = require("../controller/artists");
+const authController = require("../controller/auth");
 console.log('ok');
 router
   .route("/")
   .get(artistsController.getArtists)
-  .post(artistsController.addOne);
+  .post(authController.authenticateToken,artistsController.addOne);
 router
   .route("/:artistId")
   .get(artistsController.getOne)
-  .delete(artistsController.deleteOne)
-  .put(artistsController.updateArtist)
-  .patch(artistsController.updateArtistPartially);
+  .delete(authController.authenticateToken,artistsController.deleteOne)
+  .put(authController.authenticateToken,artistsController.updateArtist)
+  .patch(authController.authenticateToken,artistsController.updateArtistPartially);
 
 module.exports = router;

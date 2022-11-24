@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../auth.service';
+import { AuthService, User } from '../auth.service';
 
 @Component({
   selector: 'app-login',
@@ -26,6 +26,9 @@ export class LoginComponent implements OnInit {
     this.isAuthLogin = false;
     this.authService.login(json).subscribe(
       (val) => {
+        console.log(val);
+
+        this.authService.user = val;
         this.isAuthLogin = true;
         this.message = 'Success';
         this.authService.token = val.token;
@@ -42,7 +45,7 @@ export class LoginComponent implements OnInit {
     setTimeout(() => this.route.navigate(['']), 3000);
   }
   goToSignUp() {
-     this.route.navigate(['sign-up']);
+    this.route.navigate(['sign-up']);
   }
 
   ngOnInit(): void {}

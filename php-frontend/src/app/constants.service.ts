@@ -5,5 +5,8 @@ import { Injectable } from '@angular/core';
 })
 export class ConstantsService {
   baseURL: string = 'http://localhost:3000/api/';
+  songsAPI: string = 'songs/';
+  artistsAPI: string = 'artists/';
+  authAPI: string = 'auth/';
   constructor() {}
 }

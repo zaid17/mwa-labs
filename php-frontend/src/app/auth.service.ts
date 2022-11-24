@@ -1,10 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ConstantsService } from './constants.service';
 
-
-export class Token {
+export class User {
+  user_name: string = '';
   token!: string;
 }
 @Injectable({
@@ -12,7 +12,7 @@ export class Token {
 })
 export class AuthService {
   #token!: string | null;
-
+  user: User = new User();
   isAuth(): boolean {
     if (this.#token) return true;
 
@@ -22,13 +22,26 @@ export class AuthService {
     return false;
   }
 
+  getToken() {
+    return this.#token;
+  }
+
+  getHeader(): HttpHeaders {
+    let header = new HttpHeaders().set(
+      'Authorization',
+      'Bearer ' + this.getToken()
+    );
+    return header;
+  }
+
   set token(token: string) {
     this.#token = token;
     localStorage.setItem('token', token);
   }
 
   logout() {
-    this.#token=null;
+    this.#token = null;
+    this.user.user_name = '';
     localStorage.clear();
   }
   constructor(
@@ -36,7 +49,10 @@ export class AuthService {
     private constansService: ConstantsService
   ) {}
 
-  public login(json: JSON): Observable<Token> {
-    return this.http.post<Token>(this.constansService.baseURL + 'auth', json);
+  public login(json: JSON): Observable<User> {
+    return this.http.post<User>(
+      this.constansService.baseURL + this.constansService.authAPI,
+      json
+    );
   }
 }
