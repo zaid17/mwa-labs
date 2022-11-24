@@ -21,6 +21,9 @@ export class EditArtistComponent implements OnInit {
   ngOnInit(): void {
     const songId = this.route.snapshot.params['songId'];
     const artistId = this.route.snapshot.params['artistId'];
+    console.log(songId);
+    console.log(artistId);
+    
     this.artistService
       .getOneArtist(songId,artistId)
       .subscribe((val) => {
@@ -38,7 +41,7 @@ export class EditArtistComponent implements OnInit {
       .editArtist(songId,this.artist._id, JSON.parse(JSON.stringify(this.artistForm.value)))
       .subscribe((val) => {
         console.log(val);
-        this.router.navigate(['songs/'+this.artist._id])
+        this.router.navigate([songId+'/artist/'+this.artist._id])
       });
 
     this.artistForm.patchValue({

@@ -10,6 +10,8 @@ import { Artisit } from '../songs/songs.component';
 })
 export class OneArtistComponent implements OnInit {
   artist: Artisit = new Artisit();
+  songId = this.route.snapshot.params['songId'];
+  artistId = this.route.snapshot.params['artistId'];
   constructor(
     private artistService: ArtistsService,
     private router: Router,
@@ -17,26 +19,28 @@ export class OneArtistComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const songId = this.route.snapshot.params['songId'];
-    const artistId = this.route.snapshot.params['artistId'];
-    this.artistService.getOneArtist(songId, artistId).subscribe((val) => {
-      this.artist = JSON.parse(JSON.stringify(val));
-    });
+    this.artistService
+      .getOneArtist(this.songId, this.artistId)
+      .subscribe((val) => {
+        this.artist = JSON.parse(JSON.stringify(val));
+      });
   }
 
   deleteArtist() {
-    const songId = this.route.snapshot.params['songId'];
-    const artistId = this.route.snapshot.params['songId'];
     this.artistService
-      .deleteArtist(songId, this.artist._id)
+      .deleteArtist(this.songId, this.artist._id)
       .subscribe((val) => {
-        this.router.navigate(['songs/' + songId]);
+        this.router.navigate(['songs/' + this.songId]);
       });
   }
   goToEditArtist() {
-   // this.router.navigate([this.song._id+'/edit-song']);
+    this.router.navigate([
+      this.songId + '/artist/' + this.artistId + '/edit-artist',
+    ]);
   }
   goToUpdateArtist() {
-  //  this.router.navigate([this.song._id+'/update-song']);
+    this.router.navigate([
+      this.songId + '/artist/' + this.artistId + '/update-artist',
+    ]);
   }
 }

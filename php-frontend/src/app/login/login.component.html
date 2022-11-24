@@ -1,0 +1,26 @@
+<div *ngIf="isAuth" class="success">{{message}}</div>
+<div *ngIf="isError" class="danger">{{message}}</div>
+<form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)">
+
+  <p>
+    <label for="username">User Name</label>
+    <input
+      type="text"
+      id="username"
+      name="username"
+      [(ngModel)]="username"
+      required
+    />
+  </p>
+  <p>
+    <label for="password">Password</label>
+    <input
+      type="text"
+      id="password"
+      name="password"
+      [(ngModel)]="password"
+      required
+    />
+  </p>
+  <button type="submit" [disabled]="!loginForm.valid">Submit</button>
+</form>

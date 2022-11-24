@@ -1,0 +1,28 @@
+input {
+    display: block;
+    width: 35%;
+    padding: 5px 10px;
+    margin: 8px 0;
+    box-sizing: border-box;
+  }
+  form{
+    margin-left:15px ;
+  }
+  label{
+    font-size: 18px;
+  }
+  button{
+    padding: 12px 20px;
+    margin-left: 15px;
+    width: 35%;
+    margin-bottom: 30px;
+  }
+
+  .success{
+    background-color: green;
+    height: 50px;
+  }
+  .danger{
+    background-color: red;
+    height: 50px;
+  }
