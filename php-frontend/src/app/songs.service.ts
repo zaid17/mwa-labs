@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Song } from './songs/songs.component';
 @Injectable({
   providedIn: 'root',
 })
@@ -9,11 +10,11 @@ export class SongsService {
   constructor(private http: HttpClient) {}
 
   public getSongs(): Observable<Object> {
-    return this.http.get(SongsService.baseURL + 'songs?count=20');
+    return this.http.get(SongsService.baseURL + 'songs?');
   }
 
-  public getOneSong(id: string): Observable<Object> {
-    return this.http.get(SongsService.baseURL + 'songs/' + id);
+  public getOneSong(id: string): Observable<Song> {
+    return this.http.get<Song>(SongsService.baseURL + 'songs/' + id);
   }
 
   public deleteSong(id: string): Observable<Object> {
@@ -24,7 +25,10 @@ export class SongsService {
     return this.http.post(SongsService.baseURL + 'songs', json);
   }
 
-  public updateSong(id: string): Observable<Object> {
-    return this.http.patch('', {});
+  public editSong(id: string, json: JSON): Observable<Object> {
+    return this.http.patch(SongsService.baseURL + 'songs/' + id, json);
+  }
+  public updateSong(id: string, json: JSON): Observable<Object> {
+    return this.http.put(SongsService.baseURL + 'songs/' + id, json);
   }
 }

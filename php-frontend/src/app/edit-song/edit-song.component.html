@@ -1,0 +1,6 @@
+<h1>Edit Song</h1>
+<form [formGroup]="songForm" (ngSubmit)="onSubmit()">
+    Title<input type="text" formControlName="title" /><br />
+    Publish Year <input type="number" formControlName="publish_year" /><br />
+    <button>Edit</button>
+  </form>

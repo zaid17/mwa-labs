@@ -1,7 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { Song } from '../song.module';
 import { SongsService } from '../songs.service';
 import { Router } from '@angular/router';
+
+export class Song {
+  title!: string;
+  publish_year!: string ;
+  _id!: string;
+  artists: Artisit[] = [];
+}
+
+export class Artisit {
+  _id!:string;
+  name!: string;
+  start_year!: string;
+}
+
 @Component({
   selector: 'app-songs',
   templateUrl: './songs.component.html',

@@ -1,6 +1,6 @@
-<h2>Add Song</h2>
-<form [formGroup]="songForm" (ngSubmit)="onSubmit()">
+<h1>Edit Artist</h1>
+<form [formGroup]="artistForm" (ngSubmit)="onSubmit()">
   Title<input type="text" formControlName="title" /><br />
   Publish Year <input type="number" formControlName="publish_year" /><br />
-  <button>Submit</button>
+  <button>Edit</button>
 </form>

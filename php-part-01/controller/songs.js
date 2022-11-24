@@ -1,6 +1,5 @@
 const Song = require("../models/song");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
 
 const _createDefaultResponseObject = (status, msg) => {
   return {
@@ -55,6 +54,11 @@ const _validNewSongParams = (req) => {
 
   return true;
 };
+const _validUpdateSongParams = (req) => {
+  if (!req.body.title && !req.body.publish_year) return false;
+
+  return true;
+};
 
 const _createNewSongObject = (req) => {
   const song = {
@@ -74,23 +78,15 @@ module.exports.addOne = (req, res) => {
 
     _sendResponse(res, response);
   }
-
-  // const saltRounds = 10;
-  // const myPlaintextPassword = req.body.password;
-
-  // const salt = bcrypt.genSaltSync(saltRounds);
-  // const hash = bcrypt.hashSync(myPlaintextPassword, salt);
-  // // to check the hash
-  // //bcrypt.compareSync(myPlaintextPassword, hash);
   const song = _createNewSongObject(req);
   Song.create(song)
     .then((song) => {
       response.status = process.env.CREATE_STATUS_CODE;
       response.msg = song;
-      _sendResponse(response);
+      _sendResponse(res, response);
     })
     .catch((err) => {
-      response.status = process.env.INTERNAL_SERVER_IRORR_STATUS_CODE;
+      response.status = process.env.NTERNAL_SERVER_ERORR_STATUS_CODE;
       response.msg = err;
       _sendResponse(res, response);
     });
@@ -152,25 +148,30 @@ module.exports.deleteSongById = (req, res) => {
 };
 
 module.exports.updateSong = (req, res) => {
-  const reponse = _createDefaultResponseObject();
-  if (!_validNewSongParams(req)) {
-    reponse.status = process.env.INVALID_PARAMS_STATUS_CODE;
-    reponse.msg = process.env.INVALID_PARAMS_MESSAGE;
+  const response = _createDefaultResponseObject();
+  if (!_validUpdateSongParams(req)) {
+    response.status = process.env.INVALID_PARAMS_STATUS_CODE;
+    response.msg = process.env.INVALID_PARAMS_MESSAGE;
     _sendResponse(res, response);
+    return;
   }
+  console.log(req.body);
   const newSong = {
-    title: req.body.title,
-    publish_year: req.body.publish_year,
     artists: req.body.artists || [],
   };
+
+  if (req.body.title) newSong.title = req.body.title;
+  if (req.body.publish_year) newSong.publish_year = req.body.publish_year;
 
   const songId = req.params.songId;
   if (!_isValidObjectId(songId)) {
     reponse.status = process.env.INVALID_PARAMS_STATUS_CODE;
     reponse.msg = process.env.INVALID_PARAMS_MESSAGE;
     _sendResponse(res, response);
+    return;
   }
   Song.findOneAndUpdate(songId, newSong, function (err, updatedSong) {
+    console.log("findind song", updatedSong);
     if (!updatedSong) {
       res.json({ msg: "song id was not found" });
       return;
@@ -180,7 +181,6 @@ module.exports.updateSong = (req, res) => {
         res.status(500).json({ msg: "error while saving" });
         return;
       } else {
-        console.log("success");
         res.status(200).json({ msg: `song with id:${songId} was updated.` });
         return;
       }

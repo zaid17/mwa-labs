@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { SongsService } from '../songs.service';
 import { Routes } from '@angular/router';
+import { ActivatedRoute, Route, Router } from '@angular/router';
+import { ArtistsService } from '../artists.service';
+import { SongsService } from '../songs.service';
 @Component({
   selector: 'app-add-song',
   templateUrl: './add-song.component.html',

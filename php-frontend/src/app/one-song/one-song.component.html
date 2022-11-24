@@ -1,3 +1,18 @@
-<p>{{song.title}}</p>
-<p>{{song.publish_year}}</p>
+<h5>Title: {{ song.title }}</h5>
+<h5>Publish Year: {{ song.publish_year }}</h5>
+<br>
+<h4 *ngIf="song.artists.length > 0">Artists</h4>
+<p
+  *ngFor="let artist of song.artists"
+  (click)="goToArtist(song._id, artist._id)"
+>
+  {{ artist.name }}
+</p>
+<br />
+<br />
 <button type="button" (click)="deleteSong()">delete</button>
+<button type="button" (click)="goToAddArtist()">add artist</button>
+<button type="button" (click)="goToEditSong()">edit song</button>
+<button type="button" (click)="goToUpdateSong()">update song</button>
+<br />
+<br />

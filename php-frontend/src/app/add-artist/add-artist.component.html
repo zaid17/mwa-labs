@@ -1,0 +1,10 @@
+<div>
+  <h2>Add Artist</h2>
+<br />
+<form [formGroup]="artistForm" (ngSubmit)="onSubmit()">
+  Name<input type="text" formControlName="name" /><br />
+  Start Year <input type="number" formControlName="start_year" /><br />
+  <button type="submit">Submit</button>
+</form>
+
+</div>
